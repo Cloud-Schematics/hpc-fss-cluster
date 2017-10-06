@@ -1,6 +1,6 @@
 # IBM Spectrum Symphony CWS/LSF Cluster Template
 
-A High Performance Computing (HPC) cluster based on IBM Containers.
+HPC for FSS Tech Preview. A High Performance Computing (HPC) cluster from IBM Spectrum Symphony
 
 This repository can be forked or directly used in IBM Cloud Schematics. You simply update terraform.tfvars to provide your software entitlement and/or sensitive info (ssh publickey, bluemix api key, softlayer username and api key, for security concern, you should use Schematics GUI for them), you can also fine control with other terraform variables.
 
