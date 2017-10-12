@@ -6,18 +6,31 @@ See the [Terraform provider docs](https://ibm-bluemix.github.io/tf-ibm-docs/) fo
 
 **IMPORTANT**
 
-Due to legal requirement, we can not provide product packages and entitlement in this template. You must either provide your own packages and entitlement or get the evaluation packages and entitlements from [IBM developerWorks] (https://www.ibm.com/developerworks/community/blogs/46ecec34-bd69-43f7-a627-7c469c1eddf8/entry/IBM_Spectrum_Symphony_releases_version_7_2?lang=en).
+Due to legal requirement, we can not provide product packages and entitlement in this template. You must either provide your own packages and entitlement or get the evaluation packages and entitlements from the following IBM URLs:
+
+Evaluation: Symphony latest (7.2.0.0): https://www.ibm.com/marketing/iwm/iwm/web/preLogin.do?source=swerpzsw-symphony-3
+  - uri_file_entitlement   = "https://......./sym_adv_ev_entitlement.dat"
+  - uri_package_installer  = "https://......./symeval-7.2.0.0_x86_64.bin"
+  - uri_package_additonal  = "https://......./symdeeval-7.2.0.0_x86_64.bin"
+
+Evaluation: CWS latest (2.2.0.0): https://www.ibm.com/marketing/iwm/iwm/web/preLogin.do?source=swg-eipcfs
+  - uri_file_entitlement   = "https://......./cwseval_entitlement.dat"
+  - uri_package_installer  = "https://......./seval-2.2.0.0_x86_64.bin"
+
+Evaluation: LSF latest (10.1): https://www.ibm.com/marketing/iwm/iwm/web/preLogin.do?source=swerpsysz-lsf-3&S_PKG=lsfv101
+  - uri_file_entitlement   = (no evaluation license provided; you must provide your own)
+  - uri_package_installer  = "https://......./lsf10.1_lsfinstall_linux_x86_64.tar.Z"
+  - uri_package_additional = "https://......./lsf10.1_linux2.6-glibc2.3-x86_64.tar."
+  - uri_package_additional2= (no evaluation license provided; does not support Ubuntu 1604)
 
 You can provide the package with a combination of the following options:
-- `uri_package_installer` (required) - The primary installer that launches Spectrum Computing cluster software. If you want to use a trial copy, use the resulting URL when you request evaluation packages on developerWorks.
-- `uri_package_additional` (optional for CWS, required for Symphony Developer Edition, required for LSF) - A secondary installer that is used for Spectrum Computing Symphony Developer Edition or LSF Arch linux2.6-glibc2.3-x86_64 (centos7). If you want to use a trial copy, use the resulting URL when you request evaluation packages on developerWorks that points to Symphony Developer Edition or LSF Arch linux2.6-glibc2.3-x86_64.
-- `uri_package_additonal2` (optional for CWS and Symphony, required for LSF) - A secondary installer that is used for Spectrum Computing LSF Arch lnx310-glibc217-x86_64 (ubuntu1604).  If you want to use a trial copy, use the resulting URL when you request evaluation packages on developerWorks that point to LSF Arch lnx310-lib217-x86_64.
+- `uri_package_installer` (required) - The primary installer that launches Spectrum Computing cluster software. If you want to use a trial copy, use the above URL to request evaluation packages for the corresponding software.
+- `uri_package_additional` (optional for CWS, required for Symphony Developer Edition, required for LSF) - A secondary installer that is used for Spectrum Computing Symphony Developer Edition or LSF Arch linux2.6-glibc2.3-x86_64 (centos7). If you want to use a trial copy, use the above URL to request evaluation packages for Symphony Developer Edition or LSF Arch linux2.6-glibc2.3-x86_64.
+- `uri_package_additonal2` (optional for CWS and Symphony, required for LSF) - A secondary installer that is used for Spectrum Computing LSF Arch lnx310-glibc217-x86_64 (ubuntu1604). If you want to use a trial copy, use the above URL to request evaluation packages for LSF Arch lnx310-lib217-x86_64.
 
 You can provide the entitlement with one of the following options:
 - `entitlement` - A string value of the pasted entitlement content.
-- `uri_file_entitlement` If you do not have entitlement that enables use of the cluster software, you can use the resulting URL when you request evaluation packages on developerWorks.
-
-**Note:** You can use the variable `uir_abc_xyz` for the URL of the links within developerWorks.
+- `uri_file_entitlement` If you do not have entitlement that enables use of the cluster software, you can use the above URL to request evaluation packages for the corresponding software.
 
 #### Release Information
 
@@ -72,7 +85,7 @@ To run this project locally:
     * via [environment variables](https://www.terraform.io/intro/getting-started/variables.html#from-environment-variables)
 2. Run `terraform plan`. Terraform performs a dry run to show what resources will be created.
 3. Run `terraform apply`. Terraform creates and deploys resources to your environment.
-    * You can see deployed SSH keys in IBM Bluemix [here](https://control.bluemix.net/devices/sshkeys).
+    * You can see deployed infrastructure in IBM Bluemix [here](https://control.bluemix.net/devices).
 4. Run `terraform destroy`. Terraform destroys all deployed resources in this environment.
 
 ### Variables
@@ -91,7 +104,7 @@ To run this project locally:
 |hourly_billing_compute|The billing type for the instance. When set to true, the computing instance is billed on hourly usage. Otherwise, the instance is billed on a monthly basis.|true|
 |hourly_billing_master|The billing type for the instance. When set to true, the master node is billed on hourly usage. Otherwise, the instance is billed on a monthly basis.|true|
 |master_failover|Specifies whether or not HA is enabled for master nodes.|false|
-|master_use_bare_metal|If set to `true`, bare metal masters are created. If set to `false`,   VM masters are created.|false|
+|master_use_bare_metal|If set to `true`, bare metal masters are created. If set to `false`, VM masters are created.|false|
 |memory_in_mb_compute|The amount of memory to allocate to compute nodes, expressed in megabytes.|4096|
 |memory_in_mb_master|The amount of memory to allocate to master nodes, expressed in megabytes.|8192|
 |network_speed_compute|The network interface speed for the compute nodes.|1000|
@@ -99,18 +112,23 @@ To run this project locally:
 |number_of_compute_bare_metal|The number of bare metal compute nodes to deploy.|0|
 |number_of_compute|The number of VM compute nodes to deploy.|2|
 |number_of_dehost|The number of development nodes to depoy.|1|
-|os_refrence_bare_metal|An operating system reference code that is used to provision the bare metal server.|UBUNTU_16_64|
-|os_refrence|An operating system reference code that is used to provision the computing instance. Get a complete list of the OS reference codes available (use your API key as the password to log in).|CENTOS_7_64|
+|os_reference_bare_metal|An operating system reference code that is used to provision the bare metal server.|UBUNTU_16_64|
+|os_reference|An operating system reference code that is used to provision the computing instance. Get a complete list of the OS reference codes available (use your API key as the password to log in).|CENTOS_7_64|
 |prefix_compute_bare_metal|The hostname prefix for compute nodes.|bmcompute|
 |prefix_compute|The hostname prefix for compute nodes.|compute|
 |prefix_dehost|The hostname prefix for Symphony development nodes.|dehost|
 |prefix_master|The hostname prefix for master nodes.|master|
 |product|The cluster product to deploy: `Symphony`, `CWS`, or `LSF`.|symphony|
+|product|The cluster software product to deploy: `symphony`, `cws`, or `lsf`.]|symphony|
 |softlayer_api_key|Your Bluemix Infrastructure (SoftLayer) API key.||
 |softlayer_username|Your Bluemix Infrastructure (SoftLayer) user name.||
 |ssh_key_label|An identifying label to assign to the SSH key.|ssh_compute_key|
 |ssh_key_note|A description to assign to the SSH key.|ssh key for cluster hosts|
 |ssh_public_key|The public key contents for the SSH keypair to access cluster nodes.||
+|uri_file_entitlement|The URL to the entitlement file for the software product.||
+|uri_package_additional|The URL to the product supplement file.||
+|uri_package_additional2|The URL to an additional product supplement file.||
+|uri_package_installer|The URL to the product installation file.||
 |use_intranet|Specifies whether the cluster resolve hostnames with intranet or internet IP addresses.|true|
 |version|The version of the cluster product: `latest`, `7.2.0.0`, `2.2.0.0`, or `10.1`.|latest|
 
@@ -118,9 +136,15 @@ To run this project locally:
 
 ### Bare metal support
 
-Use standalone ibm-cloud-provider and Terraform to deploy bare metal servers. Since `datacenter` and `fixed_config_preset` must be specified and there is no good way to make sure the values can be satisfied, you may need to try several times.
+Use standalone ibm-cloud-provider and Terraform to deploy bare metal servers. Since `datacenter` and `fixed_config_preset` must be specified and there is no guarantee of availability, you may need to try several different values.
 
 You can use `D2620V4_128GB_2X800GB_SSD_RAID_1_K80_GPU2` as a GPU preset.
+
+When deploying bare metal servers, these variables can be especially useful:
+- master_use_bare_metal - If set to `true`, bare metal masters are created. If set to `false`, VM masters are created.
+- number_of_compute_bare_metal  - The number of bare metal compute nodes to deploy.
+- datacenter_bare_metal - The data center to create resources in. You can get the list by running `bluemix cs locations`.
+- os_reference_bare_metal - An operating system reference code that is used to provision the bare metal server.
 
 ## Community Contribution Requirements
 
@@ -142,15 +166,20 @@ Community contributions to this repository must follow the [IBM Developer's Cert
 
  - add option to create and specify private vlan for vm instances
  - ssh_private_key no longer needed for bare metal deployment
+ - add paramters for evaluation clusters:
+ - uri_file_entitlement
+ - uri_package_installer
+ - uri_package_additonal
+ - uri_package_additional2
 
  ### version 0.4
 
  - Boost version to 0.4 to catchup provider version
- - Support symphony, cws and lsf deployment
- - Support both CENTOS_7_64 and UBUNTU_16_64
+ - Support **symphony**, **cws** and **lsf deployment**
+ - Support both **CENTOS_7_64** and **UBUNTU_16_64**
  - Bare metal support (experimental)
    - **never create bare metals with the same hostname and domainname in the same day even after destroy**
-   - bare metal creation require to specify datacenter and preset fixed config, no guarranty of availability
+   - bare metal creation require to specify datacenter and preset fixed config, no guarantee of availability
    - **master_use_bare_metal** or **number_of_compute_bare_metal**
 
  ### Release initial
