@@ -6,7 +6,7 @@ See the [Terraform provider docs](https://ibm-bluemix.github.io/tf-ibm-docs/) fo
 
 **IMPORTANT**
 
-Due to legal requirement, we can not provide product packages and entitlement in this template. You must either provide your own packages and entitlement or get the evaluation packages and entitlements from the following IBM URLs:
+Due to legal requirement, we can not provide product packages and entitlement in this template. You must either provide your own packages and entitlement links or get the evaluation packages and entitlement links from the following IBM URLs by those variables starting with uri_ (take the evaluation edition for example, after  "I agree" to the license, "Download using http", copy the download url for the proper packages, it is unique for each user and valid only for a few days):
 
 Evaluation: Symphony latest (7.2.0.0): https://www.ibm.com/marketing/iwm/iwm/web/preLogin.do?source=swerpzsw-symphony-3
   - uri_file_entitlement   = "https://......./sym_adv_ev_entitlement.dat"
@@ -21,7 +21,7 @@ Evaluation: LSF latest (10.1): https://www.ibm.com/marketing/iwm/iwm/web/preLogi
   - uri_file_entitlement   = (no evaluation license provided; you must provide your own)
   - uri_package_installer  = "https://......./lsf10.1_lsfinstall_linux_x86_64.tar.Z"
   - uri_package_additional = "https://......./lsf10.1_linux2.6-glibc2.3-x86_64.tar."
-  - uri_package_additional2= (no evaluation license provided; does not support Ubuntu 1604)
+  - uri_package_additional2= (no package provided; does not support Ubuntu 1604)
 
 You can provide the package with a combination of the following options:
 - `uri_package_installer` (required) - The primary installer that launches Spectrum Computing cluster software. If you want to use a trial copy, use the above URL to request evaluation packages for the corresponding software.
