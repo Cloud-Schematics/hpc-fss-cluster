@@ -35,7 +35,7 @@ You can provide the package with a combination of the following options:
 - `uri_package_additonal2` (optional for CWS and Symphony, required for LSF) - A secondary installer that is used for Spectrum Computing LSF Arch lnx310-glibc217-x86_64 (ubuntu1604). If you want to use a trial copy, use the above URL to request evaluation packages for LSF Arch lnx310-lib217-x86_64.
 
 You can provide the entitlement with one of the following options:
-- `entitlement` - A string value of the pasted entitlement content. If it has multiple lines, you can paste line by line, adding `\n` to each lines.
+- `entitlement` - A string value of the pasted entitlement content. If the entitlement contains multiple lines, you can paste line by line, adding `\n` to each line for now.
 - `uri_file_entitlement` If you do not have entitlement that enables use of the cluster software, you can use the above URL to request evaluation packages for the corresponding software.
 
 #### Release Information
