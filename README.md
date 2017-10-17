@@ -6,7 +6,7 @@ See the [Terraform provider docs](https://ibm-bluemix.github.io/tf-ibm-docs/) fo
 
 **IMPORTANT**
 
-Due to legal requirement, we cannot provide product packages and entitlement in this template. You must either provide your own product packages and entitlement links, or use the IBM Spectrum Cluster evaluation packages and entitlement links from the following IBM URLs, and specify those values in the variables `uri_file_entitlement`, `uri_package_installer`, `uri_package_additional`, `uri_package_additional2` variables in the Variables section of the hpc-fss-cluser template. 
+Due to legal requirement, we cannot provide product packages and entitlement in this template. You must either provide your own product packages and entitlement links, or use the IBM Spectrum Cluster evaluation packages and entitlement links from the following IBM URLs, and specify those values in `uri_file_entitlement`, `uri_package_installer`, `uri_package_additional`, `uri_package_additional2` variables in the Variables section of your environment created using the hpc-fss-cluser template. 
 
 If you use the evaluation edition, after selecting "I agree" to the license and "Download using http" option, for each files listed below, right click "download nbow" and specify "Copy Link Address" to copy the download URL and then use that link address in the applicable `uri_` variable field. For example, copy the link address for the IBM Spectrum Symphony evaluation edition entitlement file, and use it as the `uri_file_entitlement` variable value in the environment. Repeat the process for the required evaluation edition packages listed below. The evaluation edition links are unique for each user and are only valid for a few days):
 
@@ -35,7 +35,7 @@ You can provide the package with a combination of the following options:
 - `uri_package_additonal2` (optional for CWS and Symphony, required for LSF) - A secondary installer that is used for Spectrum Computing LSF Arch lnx310-glibc217-x86_64 (ubuntu1604). If you want to use a trial copy, use the above URL to request evaluation packages for LSF Arch lnx310-lib217-x86_64.
 
 You can provide the entitlement with one of the following options:
-- `entitlement` - A string value of the pasted entitlement content.
+- `entitlement` - A string value of the pasted entitlement content. If it has multiple lines, you can paste line by line, adding `\n` to each lines.
 - `uri_file_entitlement` If you do not have entitlement that enables use of the cluster software, you can use the above URL to request evaluation packages for the corresponding software.
 
 #### Release Information
