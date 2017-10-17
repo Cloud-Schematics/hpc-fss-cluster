@@ -6,18 +6,18 @@ See the [Terraform provider docs](https://ibm-bluemix.github.io/tf-ibm-docs/) fo
 
 **IMPORTANT**
 
-Due to legal requirement, we can not provide product packages and entitlement in this template. You must either provide your own packages and entitlement links or get the evaluation packages and entitlement links from the following IBM URLs by those variables starting with uri_ (take the evaluation edition for example, after  "I agree" to the license, "Download using http", copy the download url for the proper packages, it is unique for each user and valid only for a few days):
+Due to legal requirement, we cannot provide product packages and entitlement in this template. You must either provide your own product packages and entitlement links, or use the IBM Spectrum Cluster evaluation packages and entitlement links from the following IBM URLs, and specify those values in the variables `uri_file_entitlement`, `uri_package_installer`, `uri_package_additional`, `uri_package_additional2` variables in the Variables section of the hpc-fss-cluser template. If you use the evaluation edition, after selecting "I agree" to the license and "Download using http" option, for each files listed below, right click "download nbow" and specify "Copy Link Address" to copy the download URL and then use that link address in the applicable `uri_` variable field. For example, copy the link address for the IBM Spectrum Symphony evaluation edition entitlement file, and use it as the `uri_file_entitlement` variable value in the environment. Repeat the process for the required evaluation edition packages listed below. The evaluation edition links are unique for each user and are only valid for a few days):
 
-Evaluation: Symphony latest (7.2.0.0): https://www.ibm.com/marketing/iwm/iwm/web/preLogin.do?source=swerpzsw-symphony-3
+Evaluation: IBM Spectrum Symphony latest (7.2.0.0): https://www.ibm.com/marketing/iwm/iwm/web/preLogin.do?source=swerpzsw-symphony-3
   - uri_file_entitlement   = "https://......./sym_adv_ev_entitlement.dat"
   - uri_package_installer  = "https://......./symeval-7.2.0.0_x86_64.bin"
   - uri_package_additonal  = "https://......./symdeeval-7.2.0.0_x86_64.bin"
 
-Evaluation: CWS latest (2.2.0.0): https://www.ibm.com/marketing/iwm/iwm/web/preLogin.do?source=swg-eipcfs
+Evaluation: IBM Spectrum CWS latest (2.2.0.0): https://www.ibm.com/marketing/iwm/iwm/web/preLogin.do?source=swg-eipcfs
   - uri_file_entitlement   = "https://......./cwseval_entitlement.dat"
-  - uri_package_installer  = "https://......./seval-2.2.0.0_x86_64.bin"
+  - uri_package_installer  = "https://......./cwseval-2.2.0.0_x86_64.bin"
 
-Evaluation: LSF latest (10.1): https://www.ibm.com/marketing/iwm/iwm/web/preLogin.do?source=swerpsysz-lsf-3&S_PKG=lsfv101
+Evaluation: IBM Spectrum LSF latest (10.1): https://www.ibm.com/marketing/iwm/iwm/web/preLogin.do?source=swerpsysz-lsf-3&S_PKG=lsfv101
   - uri_file_entitlement   = (no evaluation license provided; you must provide your own)
   - uri_package_installer  = "https://......./lsf10.1_lsfinstall_linux_x86_64.tar.Z"
   - uri_package_additional = "https://......./lsf10.1_linux2.6-glibc2.3-x86_64.tar."
