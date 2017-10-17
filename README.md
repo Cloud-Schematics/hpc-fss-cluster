@@ -24,10 +24,10 @@ Evaluation: IBM Spectrum CWS latest (2.2.0.0): https://www.ibm.com/marketing/iwm
   - `uri_package_installer`  = "https://......./cwseval-2.2.0.0_x86_64.bin"
 
 Evaluation: IBM Spectrum LSF latest (10.1): https://www.ibm.com/marketing/iwm/iwm/web/preLogin.do?source=swerpsysz-lsf-3&S_PKG=lsfv101
-  - `uri_file_entitlement`   = (no evaluation license provided; you must provide your own)
+  - `uri_file_entitlement`   = (no evaluation license provided, it is embedded. leave empty for evaluation edition)
   - `uri_package_installer`  = "https://......./lsf10.1_lsfinstall_linux_x86_64.tar.Z"
   - `uri_package_additional` = "https://......./lsf10.1_linux2.6-glibc2.3-x86_64.tar."
-  - `uri_package_additional2`= (no package provided; does not support Ubuntu 1604)
+  - `uri_package_additional2`= (no package provided; does not support Ubuntu 1604 OS)
 
 You can provide the package with a combination of the following options:
 - `uri_package_installer` (required) - The primary installer that launches Spectrum Computing cluster software. If you want to use a trial copy, use the above URL to request evaluation packages for the corresponding software.
