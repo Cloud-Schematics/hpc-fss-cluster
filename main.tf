@@ -158,14 +158,6 @@ variable prefix_compute {
   default = "compute"
   description = "The hostname prefix for compute nodes."
 }
-variable number_of_compute_bare_metal {
-  default = 0
-  description = "The number of bare metal compute nodes to deploy"
-}
-variable prefix_compute_bare_metal {
-  default = "bmcompute"
-  description = "The hostname prefix for bare metal compute nodes."
-}
 variable prefix_dehost {
   default = "dehost"
   description = "The hostname prefix for Symphony development nodes."
@@ -225,4 +217,12 @@ variable master_use_bare_metal {
 variable fixed_config_preset {
   default = "S1270_32GB_2X960GBSSD_NORAID"
   description = "The bare metal hardware configuration."
+}
+variable number_of_compute_bare_metal {
+  default = 0
+  description = "The number of bare metal compute nodes to deploy"
+}
+variable prefix_compute_bare_metal {
+  default = "bmcompute"
+  description = "The hostname prefix for bare metal compute nodes."
 }
