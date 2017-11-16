@@ -16,7 +16,7 @@ function add_admin_user()
 ####################FUNCTION PYTHON SCRIPTS##################
 function create_udp_server()
 {
-	cat << ENDF > /tmp/udpserver.py
+	cat << ENDF > /etc/udpserver.py
 #!/usr/bin/env python
 
 ETC_HOSTS = '/etc/hosts'
@@ -53,8 +53,21 @@ while True:
 	else:
 		s.sendto("done", addr)
 ENDF
-	chmod +x /tmp/udpserver.py
-	nohup python /tmp/udpserver.py >> /tmp/udpserver.log 2>&1 &
+	chmod +x /etc/udpserver.py
+	nohup python /etc/udpserver.py >> /tmp/udpserver.log 2>&1 &
+	if [ -f /etc/rc.d/rc.local ]
+	then
+		sed -i '/^exit 0/d' /etc/rc.d/rc.local
+		echo "nohup python /etc/udpserver.py >> /tmp/udpserver.log 2>&1 &" >> /etc/rc.d/rc.local
+		chmod +x /etc/rc.d/rc.local
+	elif [ -f /etc/rc.local ]
+	then
+		sed -i '/^exit 0/d' /etc/rc.local
+		echo "nohup python /etc/udpserver.py >> /tmp/udpserver.log 2>&1 &" >> /etc/rc.local
+		chmod +x /etc/rc.local
+	else
+		echo
+	fi
 }
 
 function create_udp_client()
