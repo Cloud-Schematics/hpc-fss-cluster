@@ -151,16 +151,28 @@ function download_packages()
 	if [ "$MASTERHOSTNAMES" == "$MASTERHOST" ]
 	then
 		# we can get the package from anywhere applicable, then export through nfs://export, not implemented here yet
-		if [ "$PRODUCT" == "symphony" ]
+		LOG "download symphony packages ..."
+		mkdir -p /export/symphony/${VERSION}
+		if [ "${VERSION}" == "latest" ]
 		then
-			LOG "download symphony packages ..."
-			mkdir -p /export/symphony/${VERSION}
-			if [ "${VERSION}" == "latest" ]
-			then
-				ver_in_pkg=7.2.0.0
-			else
-				ver_in_pkg=${VERSION}
-			fi
+			ver_in_pkg=7.2.0.0
+		else
+			ver_in_pkg=${VERSION}
+		fi
+		if [ "$ROLE" == 'symde' ]
+		then
+			LOG "\twget -nH -c -o /dev/null -O symde-${ver_in_pkg}_x86_64.bin ${uri_package_additional}"
+			cd /export/symphony/${VERSION} && wget -nH -c --no-check-certificate -o /dev/null -O symde-${ver_in_pkg}_x86_64.bin ${uri_package_additional}
+			touch /export/download_finished
+			LOG "\twget -nH -c -o /dev/null -O eclipse.tar.gz http://mirror.csclub.uwaterloo.ca/eclipse/technology/epp/downloads/release/luna/SR2/eclipse-java-luna-SR2-linux-gtk-x86_64.tar.gz"
+			wget -nH -c -o /dev/null -O /export/eclipse.tar.gz http://mirror.csclub.uwaterloo.ca/eclipse/technology/epp/downloads/release/luna/SR2/eclipse-java-luna-SR2-linux-gtk-x86_64.tar.gz
+			touch /export/eclipse && rm -fr /export/eclipse && cd /export && tar xf eclipse.tar.gz
+			cd /usr/bin && ln -sf /export/eclipse/eclipse .
+		elif [ -d /opt/ibm/spectrumcomputing ]
+		then
+			LOG "bypass downloading packages ..."
+			touch /export/download_finished
+		else
 			if [ "$ROLE" == 'master' ]
 			then
 				LOG "\twget -nH -c --no-check-certificate -o /dev/null -O sym-${ver_in_pkg}_x86_64.bin ${uri_package_installer}"
@@ -174,28 +186,6 @@ function download_packages()
 						LOG "\twget -nH -c -o /dev/null -O sym-${ver_in_pkg}_x86_64.bin ${uri_package_installer}"
 						cd /export/symphony/${VERSION} && wget -nH -c --no-check-certificate -o /dev/null -O sym-${ver_in_pkg}_x86_64.bin ${uri_package_installer}
 						touch /export/download_finished
-					elif [ "${ROLE}" == 'symde' ]
-					then
-						LOG "\twget -nH -c -o /dev/null -O symde-${ver_in_pkg}_x86_64.bin ${uri_package_additional}"
-						cd /export/symphony/${VERSION} && wget -nH -c --no-check-certificate -o /dev/null -O symde-${ver_in_pkg}_x86_64.bin ${uri_package_additional}
-						touch /export/download_finished
-						LOG "\twget -nH -c -o /dev/null -O eclipse.tar.gz http://mirror.csclub.uwaterloo.ca/eclipse/technology/epp/downloads/release/luna/SR2/eclipse-java-luna-SR2-linux-gtk-x86_64.tar.gz"
-						wget -nH -c -o /dev/null -O /export/eclipse.tar.gz http://mirror.csclub.uwaterloo.ca/eclipse/technology/epp/downloads/release/luna/SR2/eclipse-java-luna-SR2-linux-gtk-x86_64.tar.gz
-						touch /export/eclipse && rm -fr /export/eclipse && cd /export && tar xf eclipse.tar.gz
-						cd /usr/bin && ln -sf /export/eclipse/eclipse .
-					else
-						echo "no download"
-					fi
-				else
-					if [ "${ROLE}" == 'symde' ]
-					then
-						LOG "\twget -nH -c -O symde-${ver_in_pkg}_x86_64.bin ${uri_package_additional}"
-						cd /export/symphony/${VERSION} && wget -nH -c --no-check-certificate -o /dev/null -O symde-${ver_in_pkg}_x86_64.bin ${uri_package_additional}
-						touch /export/download_finished
-						LOG "\twget -nH -c -o /dev/null -O eclipse.tar.gz http://mirror.csclub.uwaterloo.ca/eclipse/technology/epp/downloads/release/luna/SR2/eclipse-java-luna-SR2-linux-gtk-x86_64.tar.gz"
-						wget -nH -c -o /dev/null -O /export/eclipse.tar.gz http://mirror.csclub.uwaterloo.ca/eclipse/technology/epp/downloads/release/luna/SR2/eclipse-java-luna-SR2-linux-gtk-x86_64.tar.gz
-						touch /export/eclipse && rm -fr /export/eclipse && cd /export && tar xf eclipse.tar.gz
-						cd /usr/bin && ln -sf /export/eclipse/eclipse .
 					fi
 				fi
 			fi
@@ -228,30 +218,35 @@ function install_symphony()
 	LOG "installing ${PRODUCT} version ${VERSION} ..."
 	sed -i -e '/7869/d'  -e '/7870/d' -e '/7871/d' /etc/services
 	echo "... trying to install symphony version $VERSION"
-	if [ "${ROLE}" == "symde" ]
+	if [ -d /opt/ibm/spectrumcomputing ]
 	then
-		if [ "$VERSION" == "latest" -o "$VERSION" = "7.2.0.0" ]
-		then
-			LOG "\tsh /export/symphony/${VERSION}/symde-7.2.0.0_x86_64.bin --quiet"
-			sh /export/symphony/${VERSION}/symde-7.2.0.0_x86_64.bin --quiet
-		fi
+		LOG "bypassing installing $PRODUCT ..."
 	else
-		if [ "${ROLE}" == "compute" ]
+		if [ "${ROLE}" == "symde" ]
 		then
-			export EGOCOMPUTEHOST=Y
-		fi
-		if [ "$VERSION" == "latest" -o "$VERSION" = "7.2.0.0" ]
-		then
-			LOG "\tsh /export/symphony/${VERSION}/sym-7.2.0.0_x86_64.bin --quiet"
-			sh /export/symphony/${VERSION}/sym-7.2.0.0_x86_64.bin --quiet
-		elif [ "$VERSION" == "7.1.2" ]
-		then
-			LOG "\tsh /export/symphony/${VERSION}/sym-7.1.2.0_x86_64.bin --quiet"
-			sh /export/symphony/${VERSION}/sym-7.1.2.0_x86_64.bin --quiet
+			if [ "$VERSION" == "latest" -o "$VERSION" = "7.2.0.0" ]
+			then
+				LOG "\tsh /export/symphony/${VERSION}/symde-7.2.0.0_x86_64.bin --quiet"
+				sh /export/symphony/${VERSION}/symde-7.2.0.0_x86_64.bin --quiet
+			fi
 		else
-			LOG "\tfailed to install application"
-			echo "... unimplimented version"
-			echo "... failed to install application" >> /root/symphony_failed
+			if [ "${ROLE}" == "compute" ]
+			then
+				export EGOCOMPUTEHOST=Y
+			fi
+			if [ "$VERSION" == "latest" -o "$VERSION" = "7.2.0.0" ]
+			then
+				LOG "\tsh /export/symphony/${VERSION}/sym-7.2.0.0_x86_64.bin --quiet"
+				sh /export/symphony/${VERSION}/sym-7.2.0.0_x86_64.bin --quiet
+			elif [ "$VERSION" == "7.1.2" ]
+			then
+				LOG "\tsh /export/symphony/${VERSION}/sym-7.1.2.0_x86_64.bin --quiet"
+				sh /export/symphony/${VERSION}/sym-7.1.2.0_x86_64.bin --quiet
+			else
+				LOG "\tfailed to install application"
+				echo "... unimplimented version"
+				echo "... failed to install application" >> /root/symphony_failed
+			fi
 		fi
 	fi
 }
@@ -290,6 +285,11 @@ function configure_symphony()
 			## disable compute role on head if there is compute nodes
 			if [ ${numbercomputes} -gt 0 ]
 			then
+				if [ ! -f /opt/ibm/spectrumcomputing/kernel/conf/ego.cluster.${clustername} ]
+				then
+					sed -ibak "s/cluster1/${clustername}/" /opt/ibm/spectrumcomputing/kernel/conf/ego.shared
+					cp /opt/ibm/spectrumcomputing/kernel/conf/ego.cluster.cluster1  /opt/ibm/spectrumcomputing/kernel/conf/ego.cluster.${clustername}
+				fi
 				sed -ibak "s/\(^${MASTERHOST} .*\)(linux)\(.*\)/\1(linux mg)\2/" /opt/ibm/spectrumcomputing/kernel/conf/ego.cluster.${clustername}
 			fi
 		elif [ "$ROLE" == "compute" ]
