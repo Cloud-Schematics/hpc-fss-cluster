@@ -2,7 +2,7 @@
 
 An [IBM Cloud Schematics](https://console.bluemix.net/docs/services/schematics/index.html) template to launch an HPC (High Performance Computing) cluster for FSS (Financial Services Sector) Tech Preview.
 Schematics uses [Terraform](https://www.terraform.io/) as the infrastructure as code engine. With this template, you can provision and manage infrastructure as a single unit.
-See the [Terraform provider docs](https://ibm-bluemix.github.io/tf-ibm-docs/) for available resources for the IBM Cloud. **Note**: To create the resources that this template requests, your [IBM Cloud Infrastructure (Softlayer) account](https://console.bluemix.net/docs/iam/mnginfra.html#managing-infrastructure-access) and [IBM Cloud account](https://console.bluemix.net/docs/iam/mngiam.html#iammanidaccser) must have sufficient permissions.
+See the [Terraform provider docs](https://ibm-cloud.github.io/tf-ibm-docs/) for available resources for the IBM Cloud. **Note**: To create the resources that this template requests, your [IBM Cloud Infrastructure (Softlayer) account](https://console.bluemix.net/docs/iam/mnginfra.html#managing-infrastructure-access) and [IBM Cloud account](https://console.bluemix.net/docs/iam/mngiam.html#iammanidaccser) must have sufficient permissions.
 
 **IMPORTANT**
 
@@ -100,6 +100,7 @@ To run this project locally:
 |bluemix_api_key|Your IBM Cloud API key. You can get the value by running `bx iam api-key-create <key name>``.||
 |cluster_admin|The administrator account of the cluster: `egoadmin` or `lsfadmin`.|egoadmin|
 |cluster_name|The name of the cluster.|mycluster|
+|cluster_web_admin_password|Password for web interface account Admin|Admin|
 |core_of_compute|The number of CPU cores to allocate to the compute server.|1|
 |core_of_master|The number of CPU cores to allocate to the master server.|2|
 |datacenter_bare_metal|The data center to create bare metal resources in. You can get the list by running `bluemix cs locations`.|wdc04|
