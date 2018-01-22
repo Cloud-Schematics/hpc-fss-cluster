@@ -257,6 +257,10 @@ variable cluster_name {
   default = "cluster1"
   description = "The name of the cluster."
 }
+variable cluster_web_admin_password {
+  default = "Admin"
+  description = "Password for web interface account Admin: `Admin` by default"
+}
 variable domain_name {
   default = "domain.com"
   description = "The name of the domain for the instance."
