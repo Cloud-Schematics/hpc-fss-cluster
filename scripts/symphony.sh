@@ -117,8 +117,8 @@ function app_depend()
 	then
 		if [ -f /etc/redhat-release ]
 		then
-			LOG "\tyum -y install java-1.7.0-openjdk gcc gcc-c++ glibc.i686 httpd"
-			yum -y install java-1.7.0-openjdk gcc gcc-c++ glibc.i686 httpd
+			LOG "\tyum -y install java-1.7.0-openjdk gcc gcc-c++ glibc.i686 httpd unzip"
+			yum -y install java-1.7.0-openjdk gcc gcc-c++ glibc.i686 httpd unzip
 			if [ "${ROLE}" == 'symde' ]
 			then
 				LOG "\tyum -y install tigervnc-server xterm firefox"
@@ -126,12 +126,12 @@ function app_depend()
 			fi
 		elif [ -f /etc/lsb-release ]
 		then
-			LOG "\tapt-get install -y gcc g++ openjdk-8-jdk make"
+			LOG "\tapt-get install -y gcc g++ openjdk-8-jdk make unzip"
 			if  cat /etc/lsb-release | egrep -qi "ubuntu 16"
 			then
-				apt-get install -y --allow-downgrades --allow-remove-essential --allow-change-held-packages gcc g++ openjdk-8-jdk make
+				apt-get install -y --allow-downgrades --allow-remove-essential --allow-change-held-packages gcc g++ openjdk-8-jdk make unzip
 			else
-				apt-get install -y --force-yes gcc g++ openjdk-7-jdk make
+				apt-get install -y --force-yes gcc g++ openjdk-7-jdk make unzip
 			fi
 			if [ "${ROLE}" == 'symde' ]
 			then
@@ -342,7 +342,7 @@ then
 	su - egoadmin -c "cd /opt/ibm/spectrumcomputing/symphonyde/de72/7.2/samples/CPP/SampleApp; make ; cd Output; gzip SampleServiceCPP; soamdeploy add SampleServiceCPP -p SampleServiceCPP.gz -c \"/SampleAppCPP\""
 	su - egoadmin -c "cd /opt/ibm/spectrumcomputing/symphonyde/de72/7.2/samples/CPP/SampleApp; sed -ibak 's/<SSM resReq/<SSM resourceGroupName=\"ManagementHosts\" resReq/' SampleApp.xml; sed -ibak 's/preStartApplication=/resourceGroupName=\"ComputeHosts\" preStartApplication=/' SampleApp.xml; soamreg SampleApp.xml" >> $LOG_FILE 2>&1
 	echo -e "\tSampleAppCPP registered..." >> ${LOG_FILE}
-	su - egoadmin -c "cd /opt/ibm/spectrumcomputing/symphonyde/de72/7.2/samples/CPP/SampleApp/Output; ./SyncClient ; sleep 5; ./AsyncClient" >> $LOG_FILE 2>&1
+	#su - egoadmin -c "cd /opt/ibm/spectrumcomputing/symphonyde/de72/7.2/samples/CPP/SampleApp/Output; ./SyncClient ; sleep 5; ./AsyncClient" >> $LOG_FILE 2>&1
 
 elif [ "${ROLE}" == 'master' ]
 then
