@@ -155,7 +155,7 @@ function funcConnectFailoverService()
 		while ! mount | grep export | grep -v grep
 		do
 			LOG "\tmounting /failover ..."
-			mount -o tcp,vers=3,rsize=32768,wsize=32768 ${nfsipaddress}:/failover /export
+			mount -o tcp,vers=3,rsize=32768,wsize=32768 ${nfsipaddress}:/failover /failover
 			touch /failover/connected-${localhostname}
 			sleep 60
 		done
@@ -183,7 +183,7 @@ function funcStartConfService()
 function funcConnectConfService()
 {
 	mkdir -p /export
-	if [ "$useintranet" == 'true' ]
+	if [ -n "${masteripaddress}" -a "$useintranet" == 'true' ]
 	then
 		while ! mount | grep export | grep -v grep
 		do
@@ -234,6 +234,7 @@ funcDetermineConnection
 if [ "$role" == "nfsserver" ]
 then
 	funcStartFailoverService
+	exit
 elif [ "$role" == "master" ]
 then
 	if echo ${localhostname} | egrep -qi "0$"
