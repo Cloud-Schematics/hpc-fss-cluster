@@ -56,7 +56,7 @@ function funcSetupProxyService()
 
 function funcUseProxyService()
 {
-	if [ "${useintranet}" != "false" -a "${role}" != "master" -a "${role}" != "symde" ]
+	if [ "${useintranet}" != "false" -a "${role}" != "master" -a "${role}" != "failover" -a "${role}" != "symde" ]
 	then
 		export http_proxy=http://${masterprivateipaddress}:3128
 		export https_proxy=http://${masterprivateipaddress}:3128
@@ -264,7 +264,7 @@ then
 fi
 
 # create and/or start up upd server/client to update /etc/hosts and other messages
-if [ "$role" == "master" ]
+if [ "$role" == "master" -o "$role" == "failover" ]
 then
 	create_udp_server
 fi
@@ -278,18 +278,29 @@ export CLUSTERNAME=$clustername
 export OVERWRITE_EGO_CONFIGURATION=Yes
 export SIMPLIFIEDWEM=N
 export ENTITLEMENT_FILE=/tmp/entitlement
-if [ -z "$masterhostnames" ]
+
+echo -e "127.0.0.1\tlocalhost.localdomain\tlocalhost\n${localipaddress}\t${localhostname}.${domain}\t${localhostname}" > /etc/hosts
+if [ "$ROLE" == "nfsserver" ]
+then
+	echo nfsserver
+elif [ "$ROLE" == "master" ]
 then
 	masterhostnames=${localhostname}
-	echo -e "127.0.0.1\tlocalhost.localdomain\tlocalhost\n${localipaddress}\t${localhostname}.${domain}\t${localhostname}" > /etc/hosts
 	export MASTERHOSTNAMES=$masterhostnames
 	export MASTERHOST=`echo $MASTERHOSTNAMES | awk '{print $1}'`
 else
 	export MASTERHOSTNAMES=$masterhostnames
 	export MASTERHOST=`echo $MASTERHOSTNAMES | awk '{print $1}'`
+	export FAILOVERHOST=`echo $MASTERHOSTNAMES | awk '{print $NF}'`
 	python /tmp/udpclient.py "update ${localipaddress} ${localhostname}.${domain} ${localhostname}"
-	echo -e "127.0.0.1\tlocalhost.localdomain\tlocalhost\n${masteripaddress}\t${MASTERHOST}.${domain}\t${MASTERHOST}\n${localipaddress}\t${localhostname}.${domain}\t${localhostname}" > /etc/hosts
+	echo -e "${masteripaddress}\t${MASTERHOST}.${domain}\t${MASTERHOST}" >> /etc/hosts
 	ping -c2 -w2 ${MASTERHOST}
+	if [ "$ROLE" != "failover" ]
+	then
+		#python /tmp/udpclient.py "update ${localipaddress} ${localhostname}.${domain} ${localhostname}"
+		#echo -e "${masteripaddress}\t${MASTERHOST}.${domain}\t${MASTERHOST}" >> /etc/hosts
+		ping -c2 -w2 ${MASTERHOST}
+	fi
 fi
 export DERBY_DB_HOST=$MASTERHOST
 if [ -z "$clusteradmin" ]
