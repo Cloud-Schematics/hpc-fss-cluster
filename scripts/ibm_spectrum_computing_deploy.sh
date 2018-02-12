@@ -133,7 +133,7 @@ function funcGetPublicIp()
 function funcStartFailoverService()
 {
 	mkdir -p /failover
-	echo -e "/failover\t\t10.0.0.0/8(ro,no_root_squash) 172.16.0.0/12(ro,no_root_squash) 192.168.0.0/16(ro,no_root_squash)" > /etc/exports
+	echo -e "/failover\t\t10.0.0.0/8(rw,no_root_squash) 172.16.0.0/12(rw,no_root_squash) 192.168.0.0/16(rw,no_root_squash)" > /etc/exports
 	if [ -f /etc/redhat-release ]
 	then
 		systemctl enable nfs
