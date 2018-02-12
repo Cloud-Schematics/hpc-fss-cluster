@@ -150,7 +150,7 @@ function funcStartFailoverService()
 function funcConnectFailoverService()
 {
 	mkdir -p /failover
-	if [ "$useintranet" == 'true' ]
+	if [ -n "${nfsipaddress}" -a "$useintranet" == 'true' ]
 	then
 		while ! mount | grep failover | grep -v grep
 		do
@@ -165,33 +165,44 @@ function funcConnectFailoverService()
 
 function funcStartConfService()
 {
-	mkdir -p /export
-	echo -e "/export\t\t10.0.0.0/8(ro,no_root_squash) 172.16.0.0/12(ro,no_root_squash) 192.168.0.0/16(ro,no_root_squash)" > /etc/exports
-	if [ -f /etc/redhat-release ]
+	if [ "$role" == "master" ]
 	then
-		systemctl enable nfs
-		systemctl start nfs
-	elif [ -f /etc/lsb-release ]
-	then
-		systemctl enable nfs-server
-		systemctl restart nfs-server
-	else
-		echo "not known"
+		mkdir -p /export
+		echo -e "/export\t\t10.0.0.0/8(ro,no_root_squash) 172.16.0.0/12(ro,no_root_squash) 192.168.0.0/16(ro,no_root_squash)" > /etc/exports
+		if [ -f /etc/redhat-release ]
+		then
+			systemctl enable nfs
+			systemctl start nfs
+		elif [ -f /etc/lsb-release ]
+		then
+			systemctl enable nfs-server
+			systemctl restart nfs-server
+		else
+			echo "not known"
+		fi
 	fi
 }
 
 function funcConnectConfService()
 {
 	mkdir -p /export
-	if [ -n "${masteripaddress}" -a "$useintranet" == 'true' ]
+	if [ "${role}" == "symde" ]
 	then
-		while ! mount | grep export | grep -v grep
-		do
-			LOG "\tmounting /export ..."
-			mount -o tcp,vers=3,rsize=32768,wsize=32768 ${masteripaddress}:/export /export
-			sleep 60
-		done
-		LOG "\tmounted /export ..."
+		echo doing nothing
+	elif [ "$role" == "failover" -o "$fole" == "compute" ]
+	then
+		if [ -n "${masteripaddress}" -a "$useintranet" == 'true' ]
+		then
+			while ! mount | grep export | grep -v grep
+			do
+				LOG "\tmounting /export ..."
+				mount -o tcp,vers=3,rsize=32768,wsize=32768 ${masteripaddress}:/export /export
+				sleep 60
+			done
+			LOG "\tmounted /export ..."
+		fi
+	else
+		echo doing nothing
 	fi
 }
 
@@ -231,26 +242,14 @@ localipaddress=$(funcGetPrivateIp)
 funcDetermineConnection
 
 # start nfs service on primary master and nfs server and try to mount nfs service from compute nodes
-if [ -n "$nfsipaddress" ]
-then
-	funcConnectFailoverService
-fi
+funcConnectFailoverService
 if [ "$role" == "nfsserver" ]
 then
 	funcStartFailoverService
 	exit
-elif [ "$role" == "master" ]
-then
-	funcStartConfService
-elif [ "$role" == "failover" ]
-then
-	funcConnectConfService
-elif [ "${role}" == "symde" ]
-then
-	mkdir -p /export
-else
-	funcConnectConfService
 fi
+funcStartConfService
+funcConnectConfService
 
 # download functions file if not there already
 LOG "donwloading product function file and source it"
