@@ -130,6 +130,39 @@ function funcGetPublicIp()
 	ip address show | egrep "inet .*global" | egrep -v "inet[ ]+10\." | head -1 | awk '{print $2}' | sed -e 's/\/.*//'
 }
 
+function funcStartFailoverService()
+{
+	mkdir -p /failover
+	echo -e "/failover\t\t10.0.0.0/8(ro,no_root_squash) 172.16.0.0/12(ro,no_root_squash) 192.168.0.0/16(ro,no_root_squash)" > /etc/exports
+	if [ -f /etc/redhat-release ]
+	then
+		systemctl enable nfs
+		systemctl start nfs
+	elif [ -f /etc/lsb-release ]
+	then
+		systemctl enable nfs-server
+		systemctl restart nfs-server
+	else
+		echo "not known"
+	fi
+}
+
+function funcConnectFailoverService()
+{
+	mkdir -p /failover
+	if [ "$useintranet" == 'true' ]
+	then
+		while ! mount | grep export | grep -v grep
+		do
+			LOG "\tmounting /failover ..."
+			mount -o tcp,vers=3,rsize=32768,wsize=32768 ${nfsipaddress}:/failover /export
+			touch /failover/connected-${localhostname}
+			sleep 60
+		done
+		LOG "\tmounted /failover ..."
+	fi
+}
+
 function funcStartConfService()
 {
 	mkdir -p /export
@@ -197,8 +230,8 @@ localipaddress=$(funcGetPrivateIp)
 # determine to use intranet or internet interface
 funcDetermineConnection
 
-# start nfs service on primary master and try to mount nfs service from compute nodes
-if [ -z "$masterhostnames" ]
+# start nfs service on primary master and nfs server and try to mount nfs service from compute nodes
+if [ -n "$nfsipaddress" ]
 then
 	if echo ${localhostname} | egrep -qi "0$"
 	then
@@ -206,6 +239,10 @@ then
 	else
 		funcConnectConfService
 	fi
+	funcConnectFailoverService
+elif [ -z "$masterhostnames" ]
+then
+	funcStartFailoverService
 else
 	if [ "${role}" == "symde" ]
 	then

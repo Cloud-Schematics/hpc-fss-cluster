@@ -5,6 +5,22 @@ resource "ibm_compute_ssh_key" "ssh_compute_key" {
   public_key = "${var.ssh_public_key}"
 }
 
+# Create virtual servers with the SSH key.
+resource "ibm_compute_vm_instance" "nfsservers" {
+  hostname          = "nfssvr${count.index}"
+  domain            = "${var.domain_name}"
+  ssh_key_ids       = ["${ibm_compute_ssh_key.ssh_compute_key.id}"]
+  os_reference_code = "${var.os_reference}"
+  datacenter        = "${var.datacenter}"
+  hourly_billing    = "${var.hourly_billing_master}"
+  network_speed     = "${var.network_speed_master}"
+  cores             = "1"
+  memory            = "2048"
+  count             = "${var.failover_master ? 1 : 0}"
+  user_metadata = "#!/bin/bash\n\nrole=nfsserver\n${file("scripts/ibm_spectrum_computing_deploy.sh")}"
+  private_network_only        = false
+}
+
 # Create bare metal servers with the SSH key.
 resource "ibm_compute_bare_metal" "masters" {
   hostname          = "${var.prefix_master}${count.index}"
@@ -32,8 +48,8 @@ resource "ibm_compute_vm_instance" "masters" {
   network_speed     = "${var.network_speed_master}"
   cores             = "${var.core_of_master}"
   memory            = "${var.memory_in_mb_master}"
-  count             = "${var.master_use_bare_metal ? 0 : var.image_id > 0 ? 0 : var.private_vlan_id > 0 ? 0 : 1}"
-  user_metadata = "#!/bin/bash\n\ndeclare -i numbercomputes=${var.number_of_compute + var.number_of_compute_bare_metal}\nuseintranet=${var.use_intranet}\ndomain=${var.domain_name}\nproduct=${var.product}\nversion=${var.version}\nrole=master\nclusteradmin=${var.cluster_admin}\nclustername=${var.cluster_name}\nentitlement=${base64encode(var.entitlement)}\nfunctionsfile=${replace(var.post_install_script_uri, basename(var.post_install_script_uri), var.product)}.sh\nuri_file_entitlement=${var.uri_file_entitlement}\nuri_package_installer=${var.uri_package_installer}\nuri_package_additional=${var.uri_package_additional}\nuri_package_additional2=${var.uri_package_additional2}\n${file("scripts/ibm_spectrum_computing_deploy.sh")}"
+  count             = "${var.master_use_bare_metal ? 0 : var.image_id > 0 ? 0 : var.private_vlan_id > 0 ? 0 : var.failover_master ? 2 : 1}"
+  user_metadata = "#!/bin/bash\n\ndeclare -i numbercomputes=${var.number_of_compute + var.number_of_compute_bare_metal}\nuseintranet=${var.use_intranet}\ndomain=${var.domain_name}\nnfsipaddress=${join(" ",ibm_compute_vm_instance.nfsservers.*.ipv4_address_private)}\nproduct=${var.product}\nversion=${var.version}\nrole=master\nclusteradmin=${var.cluster_admin}\nclustername=${var.cluster_name}\nentitlement=${base64encode(var.entitlement)}\nfunctionsfile=${replace(var.post_install_script_uri, basename(var.post_install_script_uri), var.product)}.sh\nuri_file_entitlement=${var.uri_file_entitlement}\nuri_package_installer=${var.uri_package_installer}\nuri_package_additional=${var.uri_package_additional}\nuri_package_additional2=${var.uri_package_additional2}\n${file("scripts/ibm_spectrum_computing_deploy.sh")}"
   private_network_only        = false
 }
 resource "ibm_compute_vm_instance" "masters-image" {
@@ -340,4 +356,8 @@ variable number_of_compute_bare_metal {
 variable prefix_compute_bare_metal {
   default = "bmcompute"
   description = "The hostname prefix for bare metal compute nodes."
+}
+variable failover_master {
+  default = "false"
+  description = "If set to `true`, enable failover for masters."
 }
