@@ -17,7 +17,7 @@ resource "ibm_compute_vm_instance" "nfsservers" {
   cores             = "1"
   memory            = "2048"
   count             = "${var.failover_master ? 1 : 0}"
-  user_metadata = "#!/bin/bash\n\nrole=nfsserver\n${file("scripts/ibm_spectrum_computing_deploy.sh")}"
+  user_metadata = "#!/bin/bash\n\nrole=nfsserver\nproduct=${var.product}\n${file("scripts/ibm_spectrum_computing_deploy.sh")}"
   private_network_only        = false
 }
 
