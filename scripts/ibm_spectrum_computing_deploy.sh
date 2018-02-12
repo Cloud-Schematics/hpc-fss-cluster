@@ -231,25 +231,23 @@ localipaddress=$(funcGetPrivateIp)
 funcDetermineConnection
 
 # start nfs service on primary master and nfs server and try to mount nfs service from compute nodes
+if [ -n "$nfsipaddress" ]
+then
+	funcConnectFailoverService
+fi
 if [ "$role" == "nfsserver" ]
 then
 	funcStartFailoverService
 	exit
 elif [ "$role" == "master" ]
 then
-	if echo ${localhostname} | egrep -qi "0$"
-	then
-		funcStartConfService
-	else
-		funcConnectConfService
-	fi
-	if [ -n "$nfsipaddress" ]
-	then
-		funcConnectFailoverService
-	fi
+	funcStartConfService
+elif [ "$role" == "failover" ]
+then
+	funcConnectConfService
 elif [ "${role}" == "symde" ]
-	then
-		mkdir -p /export
+then
+	mkdir -p /export
 else
 	funcConnectConfService
 fi
