@@ -152,7 +152,7 @@ function funcConnectFailoverService()
 	mkdir -p /failover
 	if [ "$useintranet" == 'true' ]
 	then
-		while ! mount | grep export | grep -v grep
+		while ! mount | grep failover | grep -v grep
 		do
 			LOG "\tmounting /failover ..."
 			mount -o tcp,vers=3,rsize=32768,wsize=32768 ${nfsipaddress}:/failover /failover
