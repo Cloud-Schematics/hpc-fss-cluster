@@ -193,10 +193,11 @@ function funcConnectConfService()
 	then
 		if [ -n "${masteripaddress}" -a "$useintranet" == 'true' ]
 		then
+			realmasterip=`echo ${masteripaddress} | cut -d' ' -f 1`
 			while ! mount | grep export | grep -v grep
 			do
 				LOG "\tmounting /export ..."
-				mount -o tcp,vers=3,rsize=32768,wsize=32768 ${masteripaddress}:/export /export
+				mount -o tcp,vers=3,rsize=32768,wsize=32768 ${realmasterip}:/export /export
 				sleep 60
 			done
 			LOG "\tmounted /export ..."
