@@ -240,9 +240,42 @@ os_config
 # get local hostname, ipaddress and netmask
 localhostname=$(hostname -s)
 localipaddress=$(funcGetPrivateIp)
+echo -e "127.0.0.1\tlocalhost.localdomain\tlocalhost\n${localipaddress}\t${localhostname}.${domain}\t${localhostname}" > /etc/hosts
+
+#normalize variables
+export PRODUCT=$product
+export VERSION=$version
+export ROLE=$role
+export CLUSTERNAME=$clustername
+export OVERWRITE_EGO_CONFIGURATION=Yes
+export SIMPLIFIEDWEM=N
+export ENTITLEMENT_FILE=/tmp/entitlement
+export MASTERHOSTNAMES=$masterhostnames
+export MASTERHOST=`echo $MASTERHOSTNAMES | awk '{print $1}'`
+export FAILOVERHOST=`echo $MASTERHOSTNAMES | awk '{print $NF}'`
+if [ "$ROLE" == "master" ]
+then
+	export MASTERHOSTNAMES=${localhostname}
+	export MASTERHOST=${localhostname}
+	export FAILOVERHOST=${localhostname}
+fi
 
 # determine to use intranet or internet interface
 funcDetermineConnection
+
+if [ "$ROLE" != "nfsserver" -a "$ROLE" != "master" ]
+then
+	echo -e "`echo ${masteripaddress} | awk '{print $1}'`\t${MASTERHOST}.${domain}\t${MASTERHOST}" >> /etc/hosts
+	python /tmp/udpclient.py "update ${localipaddress} ${localhostname}.${domain} ${localhostname}"
+	ping -c2 -w2 ${MASTERHOST}
+	if [ "$MASTERHOST" != "${FAILOVERHOST}" ]
+	then
+		echo -e "`echo ${masteripaddress} | awk '{print $NF}'`\t${FAILOVERHOST}.${domain}\t${FAILOVERHOST}" >> /etc/hosts
+		ping -c2 -w2 ${FAILOVERHOST}
+	fi
+else
+	echo nothing
+fi
 
 # start nfs service on primary master and nfs server and try to mount nfs service from compute nodes
 funcConnectFailoverService
@@ -276,37 +309,6 @@ then
 	create_udp_client
 fi
 
-#normalize variables
-export PRODUCT=$product
-export VERSION=$version
-export ROLE=$role
-export CLUSTERNAME=$clustername
-export OVERWRITE_EGO_CONFIGURATION=Yes
-export SIMPLIFIEDWEM=N
-export ENTITLEMENT_FILE=/tmp/entitlement
-export MASTERHOSTNAMES=$masterhostnames
-export MASTERHOST=`echo $MASTERHOSTNAMES | awk '{print $1}'`
-export FAILOVERHOST=`echo $MASTERHOSTNAMES | awk '{print $NF}'`
-
-echo -e "127.0.0.1\tlocalhost.localdomain\tlocalhost\n${localipaddress}\t${localhostname}.${domain}\t${localhostname}" > /etc/hosts
-if [ "$ROLE" == "nfsserver" ]
-then
-	echo nfsserver
-elif [ "$ROLE" == "master" ]
-then
-	export MASTERHOSTNAMES=${localhostname}
-	export MASTERHOST=${localhostname}
-	export FAILOVERHOST=${localhostname}
-else
-	python /tmp/udpclient.py "update ${localipaddress} ${localhostname}.${domain} ${localhostname}"
-	echo -e "`echo ${masteripaddress} | awk '{print $1}'`\t${MASTERHOST}.${domain}\t${MASTERHOST}" >> /etc/hosts
-	ping -c2 -w2 ${MASTERHOST}
-	if [ "$MASTERHOST" != "${FAILOVERHOST}" ]
-	then
-		echo -e "`echo ${masteripaddress} | awk '{print $NF}'`\t${FAILOVERHOST}.${domain}\t${FAILOVERHOST}" >> /etc/hosts
-		ping -c2 -w2 ${FAILOVERHOST}
-	fi
-fi
 export DERBY_DB_HOST=$MASTERHOST
 if [ -z "$clusteradmin" ]
 then
