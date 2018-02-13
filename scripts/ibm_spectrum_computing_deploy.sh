@@ -268,7 +268,10 @@ if [ "$role" == "master" -o "$role" == "failover" ]
 then
 	create_udp_server
 fi
-create_udp_client
+if [ "$role" != "master" -a "$role" != "nfserver" ]
+then
+	create_udp_client
+fi
 
 #normalize variables
 export PRODUCT=$product
@@ -278,6 +281,9 @@ export CLUSTERNAME=$clustername
 export OVERWRITE_EGO_CONFIGURATION=Yes
 export SIMPLIFIEDWEM=N
 export ENTITLEMENT_FILE=/tmp/entitlement
+export MASTERHOSTNAMES=$masterhostnames
+export MASTERHOST=`echo $MASTERHOSTNAMES | awk '{print $1}'`
+export FAILOVERHOST=`echo $MASTERHOSTNAMES | awk '{print $NF}'`
 
 echo -e "127.0.0.1\tlocalhost.localdomain\tlocalhost\n${localipaddress}\t${localhostname}.${domain}\t${localhostname}" > /etc/hosts
 if [ "$ROLE" == "nfsserver" ]
@@ -285,22 +291,13 @@ then
 	echo nfsserver
 elif [ "$ROLE" == "master" ]
 then
-	masterhostnames=${localhostname}
-	export MASTERHOSTNAMES=$masterhostnames
-	export MASTERHOST=`echo $MASTERHOSTNAMES | awk '{print $1}'`
+	export MASTERHOSTNAMES=${localhostname}
+	export MASTERHOST=${localhostname}
+	export FAILOVERHOST=${localhostname}
 else
-	export MASTERHOSTNAMES=$masterhostnames
-	export MASTERHOST=`echo $MASTERHOSTNAMES | awk '{print $1}'`
-	export FAILOVERHOST=`echo $MASTERHOSTNAMES | awk '{print $NF}'`
 	python /tmp/udpclient.py "update ${localipaddress} ${localhostname}.${domain} ${localhostname}"
 	echo -e "${masteripaddress}\t${MASTERHOST}.${domain}\t${MASTERHOST}" >> /etc/hosts
 	ping -c2 -w2 ${MASTERHOST}
-	if [ "$ROLE" != "failover" ]
-	then
-		#python /tmp/udpclient.py "update ${localipaddress} ${localhostname}.${domain} ${localhostname}"
-		#echo -e "${masteripaddress}\t${MASTERHOST}.${domain}\t${MASTERHOST}" >> /etc/hosts
-		ping -c2 -w2 ${MASTERHOST}
-	fi
 fi
 export DERBY_DB_HOST=$MASTERHOST
 if [ -z "$clusteradmin" ]

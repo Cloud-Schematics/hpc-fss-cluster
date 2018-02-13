@@ -76,12 +76,14 @@ function create_udp_client()
 #!/usr/bin/env python
 
 import socket
-import sys
+import sys, time
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 for data in sys.argv:
-	print(data)
-	s.sendto(data,('${masteripaddress}',9999))
-	print(s.recv(1024))
+    print(data)
+    for master in "${masteripaddress}".split():
+        s.sendto(data,(master,9999))
+        time.sleep(1)
+        print(s.recv(1024))
 s.close()
 ENDF
 	chmod +x /tmp/udpclient.py
