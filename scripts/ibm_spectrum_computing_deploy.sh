@@ -189,7 +189,7 @@ function funcConnectConfService()
 	if [ "${role}" == "symde" ]
 	then
 		echo doing nothing
-	elif [ "$role" == "failover" -o "$fole" == "compute" ]
+	elif [ "$role" == "failover" -o "$role" == "compute" ]
 	then
 		if [ -n "${masteripaddress}" -a "$useintranet" == 'true' ]
 		then
