@@ -58,18 +58,19 @@ function funcUseProxyService()
 {
 	if [ "${useintranet}" != "false" -a "${role}" != "master" -a "${role}" != "failover" -a "${role}" != "symde" ]
 	then
-		export http_proxy=http://${masterprivateipaddress}:3128
-		export https_proxy=http://${masterprivateipaddress}:3128
-		export ftp_proxy=http://${masterprivateipaddress}:3128
-		echo export http_proxy=http://${masterprivateipaddress}:3128 >> /root/.bash_profile
-		echo export https_proxy=http://${masterprivateipaddress}:3128 >> /root/.bash_profile
-		echo export ftp_proxy=http://${masterprivateipaddress}:3128 >> /root/.bash_profile
+		realmasterprivateipaddress=`echo ${masterprivateipaddress} | awk '{print $1}'`
+		export http_proxy=http://${realmasterprivateipaddress}:3128
+		export https_proxy=http://${realmasterprivateipaddress}:3128
+		export ftp_proxy=http://${realmasterprivateipaddress}:3128
+		echo export http_proxy=http://${realmasterprivateipaddress}:3128 >> /root/.bash_profile
+		echo export https_proxy=http://${realmasterprivateipaddress}:3128 >> /root/.bash_profile
+		echo export ftp_proxy=http://${realmasterprivateipaddress}:3128 >> /root/.bash_profile
 		if [ -f /etc/redhat-release ]
 		then
-			echo "proxy=http://${masterprivateipaddress}:3128" >> /etc/yum.conf
+			echo "proxy=http://${realmasterprivateipaddress}:3128" >> /etc/yum.conf
 		elif [ -f /etc/lsb-release ]
 		then
-			echo "Acquire::http::Proxy \"http://${masterprivateipaddress}:3128/\";" > /etc/apt/apt.conf
+			echo "Acquire::http::Proxy \"http://${realmasterprivateipaddress}:3128/\";" > /etc/apt/apt.conf
 		else
 			echo noconfig
 		fi
@@ -193,7 +194,7 @@ function funcConnectConfService()
 	then
 		if [ -n "${masteripaddress}" -a "$useintranet" == 'true' ]
 		then
-			realmasterip=`echo ${masteripaddress} | cut -d' ' -f 1`
+			realmasterip=`echo ${masteripaddress} | awk '{print $1}'`
 			while ! mount | grep export | grep -v grep
 			do
 				LOG "\tmounting /export ..."
@@ -216,9 +217,10 @@ function funcDetermineConnection()
 		masterpublicipaddress=$(funcGetPublicIp)
 	fi
 	masteripaddress=${masterprivateipaddress}
+	realmasteripaddress=`echo ${masterprivateipaddress} | awk '{print $1}'`
 	
 	## if localipaddress is not in the same subnet as masterprivateipaddress, force using internet
-	if [ "${localipaddress%.*}" != "${masterprivateipaddress%.*}" ]
+	if [ "${localipaddress%.*}" != "${realmasterprivateipaddress%.*}" ]
 	then
 		useintranet=false
 	fi
@@ -297,8 +299,13 @@ then
 	export FAILOVERHOST=${localhostname}
 else
 	python /tmp/udpclient.py "update ${localipaddress} ${localhostname}.${domain} ${localhostname}"
-	echo -e "${masteripaddress}\t${MASTERHOST}.${domain}\t${MASTERHOST}" >> /etc/hosts
+	echo -e "`echo ${masteripaddress} | awk '{print $1}'`\t${MASTERHOST}.${domain}\t${MASTERHOST}" >> /etc/hosts
 	ping -c2 -w2 ${MASTERHOST}
+	if [ "$MASTERHOST" != "${FAILOVERHOST}" ]
+	then
+		echo -e "`echo ${masteripaddress} | awk '{print $NF}'`\t${FAILOVERHOST}.${domain}\t${FAILOVERHOST}" >> /etc/hosts
+		ping -c2 -w2 ${FAILOVERHOST}
+	fi
 fi
 export DERBY_DB_HOST=$MASTERHOST
 if [ -z "$clusteradmin" ]
