@@ -192,8 +192,6 @@ function download_packages()
 				fi
 			fi
 		fi
-	else
-		echo "wont come here before failover implementation"
 	fi
 }
 
@@ -292,6 +290,19 @@ function configure_symphony()
 			fi
 			sed -ibak "s/\(^${MASTERHOST} .*\)(linux)\(.*\)/\1(linux mg)\2/" /opt/ibm/spectrumcomputing/kernel/conf/ego.cluster.${clustername}
 		fi
+		if [ -d /failover ]
+		then
+			Log "configure symphony master for failover using /failover..."
+			su $CLUSTERADMIN -c ". ${SOURCE_PROFILE}; egoconfig mghost /failover -f; egoconfig masterlist `echo ${MASTERHOSTNAMES} | sed -e 's/ /,/'` -f"
+		fi
+	## handle failover
+	elif [ "$ROLE" == "failover" ]
+	then
+		LOG "configure symphony master failover..."
+		LOG "\tsu $CLUSTERADMIN -c \". ${SOURCE_PROFILE}; egoconfig join ${MASTERHOST} -f; egoconfig mghost /failover -f\""
+		echo su $CLUSTERADMIN -c ". ${SOURCE_PROFILE}; egoconfig join ${MASTERHOST} -f; egoconfig mghost /failover -f"
+		sed -i 's/AUTOMATIC/MANUAL/' /opt/ibm/spectrumcomputing/eservice/esc/conf/services/named.xml
+		sed -i 's/AUTOMATIC/MANUAL/' /opt/ibm/spectrumcomputing/eservice/esc/conf/services/wsg.xml
 	elif [ "$ROLE" == "compute" ]
 	then
 		LOG "configure symphony compute node ..."
@@ -306,22 +317,6 @@ function configure_symphony()
 		LOG "\tconfigured symphony de node ..."
 	else
 		echo nothing to do
-	fi
-	## handle failover
-	if [ "$MASTERHOSTNAMES" != "$MASTERHOST" ]
-	then
-		if [ "${ROLE}" == "master" ]
-		then
-			Log "configure symphony master for failover ..."
-		fi
-		if [ "$ROLE" == "failover" ]
-		then
-			LOG "configure symphony master failover..."
-			LOG "\tsu $CLUSTERADMIN -c \". ${SOURCE_PROFILE}; egoconfig join ${MASTERHOST} -f; egoconfig setentitlement ${ENTITLEMENT_FILE}\""
-			echo su $CLUSTERADMIN -c ". ${SOURCE_PROFILE}; egoconfig join ${MASTERHOST} -f; egoconfig setentitlement ${ENTITLEMENT_FILE}"
-			sed -i 's/AUTOMATIC/MANUAL/' /opt/ibm/spectrumcomputing/eservice/esc/conf/services/named.xml
-			sed -i 's/AUTOMATIC/MANUAL/' /opt/ibm/spectrumcomputing/eservice/esc/conf/services/wsg.xml
-		fi
 	fi
 	if [ "${ROLE}" == "master" -o "${ROLE}" == "failover" -o "${ROLE}" == "compute" ]
 	then
