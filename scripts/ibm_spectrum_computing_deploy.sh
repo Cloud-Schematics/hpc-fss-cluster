@@ -151,7 +151,8 @@ function funcStartFailoverService()
 function funcConnectFailoverService()
 {
 	mkdir -p /failover
-	if [ -n "${nfsipaddress}" -a "$useintranet" == 'true' ]
+	#if [ -n "${nfsipaddress}" -a "$useintranet" == 'true' ]
+	if [ -n "${nfsipaddress}" ]
 	then
 		while ! mount | grep failover | grep -v grep
 		do
