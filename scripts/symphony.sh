@@ -294,15 +294,26 @@ function configure_symphony()
 		then
 			chown -R $CLUSTERADMIN /failover
 			LOG "configure symphony master for failover using /failover..."
-			su $CLUSTERADMIN -c ". ${SOURCE_PROFILE}; egoconfig mghost /failover -f; egoconfig masterlist `echo ${MASTERHOSTNAMES} | sed -e 's/ /,/'` -f"
+			su $CLUSTERADMIN -c ". ${SOURCE_PROFILE}; egoconfig mghost /failover -f"
+			sleep 10
+			su $CLUSTERADMIN -c ". ${SOURCE_PROFILE}; egoconfig masterlist ${MASTERHOSTNAME},`echo ${MASTERHOSTNAME} | sed -e 's/0$/1/'` -f"
+			if [ ${numbercomputes} -gt 0 ]
+			then
+				if [ ! -f /failover/kernel/conf/ego.cluster.${clustername} ]
+				then
+					sed -ibak "s/cluster1/${clustername}/" /failover/kernel/conf/ego.shared
+					cp /failover/kernel/conf/ego.cluster.cluster1  /failover/kernel/conf/ego.cluster.${clustername}
+				fi
+				sed -ibak "s/\(^${MASTERHOST} .*\)(linux)\(.*\)/\1(linux mg)\2/" /failover/kernel/conf/ego.cluster.${clustername}
+			fi
 		fi
 	## handle failover
 	elif [ "$ROLE" == "failover" ]
 	then
 		LOG "configure symphony master failover..."
-		LOG "\tsu $CLUSTERADMIN -c \". ${SOURCE_PROFILE}; egoconfig join ${MASTERHOST} -f; egoconfig mghost /failover -f\""
 		chown -R $CLUSTERADMIN /failover
-		echo su $CLUSTERADMIN -c ". ${SOURCE_PROFILE}; egoconfig join ${MASTERHOST} -f; egoconfig mghost /failover -f"
+		LOG "\tsu $CLUSTERADMIN -c \". ${SOURCE_PROFILE}; egoconfig join ${MASTERHOST} -f; egoconfig mghost /failover -f\""
+		su $CLUSTERADMIN -c ". ${SOURCE_PROFILE}; egoconfig join ${MASTERHOST} -f; egoconfig mghost /failover -f"
 		sed -i 's/AUTOMATIC/MANUAL/' /opt/ibm/spectrumcomputing/eservice/esc/conf/services/named.xml
 		sed -i 's/AUTOMATIC/MANUAL/' /opt/ibm/spectrumcomputing/eservice/esc/conf/services/wsg.xml
 	elif [ "$ROLE" == "compute" ]
