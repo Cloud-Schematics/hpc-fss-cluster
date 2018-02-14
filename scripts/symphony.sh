@@ -292,7 +292,8 @@ function configure_symphony()
 		fi
 		if [ -d /failover ]
 		then
-			Log "configure symphony master for failover using /failover..."
+			chown -R $CLUSTERADMIN /failover
+			LOG "configure symphony master for failover using /failover..."
 			su $CLUSTERADMIN -c ". ${SOURCE_PROFILE}; egoconfig mghost /failover -f; egoconfig masterlist `echo ${MASTERHOSTNAMES} | sed -e 's/ /,/'` -f"
 		fi
 	## handle failover
@@ -300,6 +301,7 @@ function configure_symphony()
 	then
 		LOG "configure symphony master failover..."
 		LOG "\tsu $CLUSTERADMIN -c \". ${SOURCE_PROFILE}; egoconfig join ${MASTERHOST} -f; egoconfig mghost /failover -f\""
+		chown -R $CLUSTERADMIN /failover
 		echo su $CLUSTERADMIN -c ". ${SOURCE_PROFILE}; egoconfig join ${MASTERHOST} -f; egoconfig mghost /failover -f"
 		sed -i 's/AUTOMATIC/MANUAL/' /opt/ibm/spectrumcomputing/eservice/esc/conf/services/named.xml
 		sed -i 's/AUTOMATIC/MANUAL/' /opt/ibm/spectrumcomputing/eservice/esc/conf/services/wsg.xml
