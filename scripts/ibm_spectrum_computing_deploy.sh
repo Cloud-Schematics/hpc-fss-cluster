@@ -221,7 +221,7 @@ function funcDetermineConnection()
 	realmasteripaddress=`echo ${masterprivateipaddress} | awk '{print $1}'`
 	
 	## if localipaddress is not in the same subnet as masterprivateipaddress, force using internet
-	if [ "${localipaddress%.*}" != "${realmasterprivateipaddress%.*}" ]
+	if [ "${localipaddress%.*}" != "${realmasteripaddress%.*}" ]
 	then
 		useintranet=false
 	fi
@@ -264,20 +264,6 @@ fi
 # determine to use intranet or internet interface
 funcDetermineConnection
 
-if [ "$ROLE" != "nfsserver" -a "$ROLE" != "master" ]
-then
-	echo -e "`echo ${masteripaddress} | awk '{print $1}'`\t${MASTERHOST}.${domain}\t${MASTERHOST}" >> /etc/hosts
-	python /tmp/udpclient.py "update ${localipaddress} ${localhostname}.${domain} ${localhostname}"
-	ping -c2 -w2 ${MASTERHOST}
-	if [ "$MASTERHOST" != "${FAILOVERHOST}" ]
-	then
-		echo -e "`echo ${masteripaddress} | awk '{print $NF}'`\t${FAILOVERHOST}.${domain}\t${FAILOVERHOST}" >> /etc/hosts
-		ping -c2 -w2 ${FAILOVERHOST}
-	fi
-else
-	echo nothing
-fi
-
 # start nfs service on primary master and nfs server and try to mount nfs service from compute nodes
 funcConnectFailoverService
 if [ "$role" == "nfsserver" ]
@@ -297,18 +283,33 @@ then
 		wget --no-check-certificate -o /dev/null -O /export/${product}.sh ${functionsfile}
 	fi
 	LOG "\tfound /export/${product}.sh"
-	. /export/${product}.sh
 fi
+. /export/${product}.sh
 
 # create and/or start up upd server/client to update /etc/hosts and other messages
 if [ "$role" == "master" -o "$role" == "failover" ]
 then
 	create_udp_server
 fi
-if [ "$role" != "master" -a "$role" != "nfserver" ]
+if [ "$role" != "master" -a "$role" != "nfsserver" ]
 then
 	create_udp_client
 fi
+
+if [ "$ROLE" != "nfsserver" -a "$ROLE" != "master" ]
+then
+	echo -e "`echo ${masteripaddress} | awk '{print $1}'`\t${MASTERHOST}.${domain}\t${MASTERHOST}" >> /etc/hosts
+	python /tmp/udpclient.py "update ${localipaddress} ${localhostname}.${domain} ${localhostname}"
+	ping -c2 -w2 ${MASTERHOST}
+	if [ "$MASTERHOST" != "${FAILOVERHOST}" ]
+	then
+		echo -e "`echo ${masteripaddress} | awk '{print $NF}'`\t${FAILOVERHOST}.${domain}\t${FAILOVERHOST}" >> /etc/hosts
+		ping -c2 -w2 ${FAILOVERHOST}
+	fi
+else
+	echo nothing
+fi
+
 
 export DERBY_DB_HOST=$MASTERHOST
 if [ -z "$clusteradmin" ]
