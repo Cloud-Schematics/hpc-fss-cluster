@@ -274,47 +274,53 @@ function configure_symphony()
 {
 	SOURCE_PROFILE=/opt/ibm/spectrumcomputing/profile.platform
 	## currently only single master
-	if [ "$MASTERHOSTNAMES" == "$MASTERHOST" ]
-	then
 		# no failover
+	if [ "${ROLE}" == "master" ]
+	then
+		LOG "configure symphony master ..."
+		LOG "\tsu $CLUSTERADMIN -c \". ${SOURCE_PROFILE}; egoconfig join ${MASTERHOST} -f; egoconfig setentitlement ${ENTITLEMENT_FILE}\""
+		su $CLUSTERADMIN -c ". ${SOURCE_PROFILE}; egoconfig join ${MASTERHOST} -f; egoconfig setentitlement ${ENTITLEMENT_FILE}"
+		sed -i 's/AUTOMATIC/MANUAL/' /opt/ibm/spectrumcomputing/eservice/esc/conf/services/named.xml
+		sed -i 's/AUTOMATIC/MANUAL/' /opt/ibm/spectrumcomputing/eservice/esc/conf/services/wsg.xml
+		## disable compute role on head if there is compute nodes
+		if [ ${numbercomputes} -gt 0 ]
+		then
+			if [ ! -f /opt/ibm/spectrumcomputing/kernel/conf/ego.cluster.${clustername} ]
+			then
+				sed -ibak "s/cluster1/${clustername}/" /opt/ibm/spectrumcomputing/kernel/conf/ego.shared
+				cp /opt/ibm/spectrumcomputing/kernel/conf/ego.cluster.cluster1  /opt/ibm/spectrumcomputing/kernel/conf/ego.cluster.${clustername}
+			fi
+			sed -ibak "s/\(^${MASTERHOST} .*\)(linux)\(.*\)/\1(linux mg)\2/" /opt/ibm/spectrumcomputing/kernel/conf/ego.cluster.${clustername}
+		fi
+	elif [ "$ROLE" == "compute" ]
+	then
+		LOG "configure symphony compute node ..."
+		LOG "\tsu $CLUSTERADMIN -c \". ${SOURCE_PROFILE}; egoconfig join ${MASTERHOST} -f\""
+		su $CLUSTERADMIN -c ". ${SOURCE_PROFILE}; egoconfig join ${MASTERHOST} -f"
+	elif [ "$ROLE" == "symde" ]
+	then
+		LOG "configure symphony de node ..."
+		sed -i "s/^EGO_MASTER_LIST=.*/EGO_MASTER_LIST=${MASTERHOST}/" /opt/ibm/spectrumcomputing/symphonyde/de72/conf/ego.conf
+		sed -i "s/^EGO_KD_PORT=.*/EGO_KD_PORT=7870/" /opt/ibm/spectrumcomputing/symphonyde/de72/conf/ego.conf
+		sed -i 's/$version = "3"/$version = "3" -o $version = "4"/' /opt/ibm/spectrumcomputing/symphonyde/de72/conf/profile.symclient
+		LOG "\tconfigured symphony de node ..."
+	else
+		echo nothing to do
+	fi
+	## handle failover
+	if [ "$MASTERHOSTNAMES" != "$MASTERHOST" ]
+	then
 		if [ "${ROLE}" == "master" ]
 		then
-			LOG "configure symphony master ..."
-			LOG "\tsu $CLUSTERADMIN -c \". ${SOURCE_PROFILE}; egoconfig join ${MASTERHOST} -f; egoconfig setentitlement ${ENTITLEMENT_FILE}\""
-			su $CLUSTERADMIN -c ". ${SOURCE_PROFILE}; egoconfig join ${MASTERHOST} -f; egoconfig setentitlement ${ENTITLEMENT_FILE}"
-			sed -i 's/AUTOMATIC/MANUAL/' /opt/ibm/spectrumcomputing/eservice/esc/conf/services/named.xml
-			sed -i 's/AUTOMATIC/MANUAL/' /opt/ibm/spectrumcomputing/eservice/esc/conf/services/wsg.xml
-			## disable compute role on head if there is compute nodes
-			if [ ${numbercomputes} -gt 0 ]
-			then
-				if [ ! -f /opt/ibm/spectrumcomputing/kernel/conf/ego.cluster.${clustername} ]
-				then
-					sed -ibak "s/cluster1/${clustername}/" /opt/ibm/spectrumcomputing/kernel/conf/ego.shared
-					cp /opt/ibm/spectrumcomputing/kernel/conf/ego.cluster.cluster1  /opt/ibm/spectrumcomputing/kernel/conf/ego.cluster.${clustername}
-				fi
-				sed -ibak "s/\(^${MASTERHOST} .*\)(linux)\(.*\)/\1(linux mg)\2/" /opt/ibm/spectrumcomputing/kernel/conf/ego.cluster.${clustername}
-			fi
-		elif [ "$ROLE" == "failover" ]
+			Log "configure symphony master for failover ..."
+		fi
+		if [ "$ROLE" == "failover" ]
 		then
 			LOG "configure symphony master failover..."
 			LOG "\tsu $CLUSTERADMIN -c \". ${SOURCE_PROFILE}; egoconfig join ${MASTERHOST} -f; egoconfig setentitlement ${ENTITLEMENT_FILE}\""
 			echo su $CLUSTERADMIN -c ". ${SOURCE_PROFILE}; egoconfig join ${MASTERHOST} -f; egoconfig setentitlement ${ENTITLEMENT_FILE}"
 			sed -i 's/AUTOMATIC/MANUAL/' /opt/ibm/spectrumcomputing/eservice/esc/conf/services/named.xml
 			sed -i 's/AUTOMATIC/MANUAL/' /opt/ibm/spectrumcomputing/eservice/esc/conf/services/wsg.xml
-		elif [ "$ROLE" == "compute" ]
-		then
-			LOG "configure symphony compute node ..."
-			LOG "\tsu $CLUSTERADMIN -c \". ${SOURCE_PROFILE}; egoconfig join ${MASTERHOST} -f\""
-			su $CLUSTERADMIN -c ". ${SOURCE_PROFILE}; egoconfig join ${MASTERHOST} -f"
-		elif [ "$ROLE" == "symde" ]
-		then
-			LOG "configure symphony de node ..."
-			sed -i "s/^EGO_MASTER_LIST=.*/EGO_MASTER_LIST=${MASTERHOST}/" /opt/ibm/spectrumcomputing/symphonyde/de72/conf/ego.conf
-			sed -i "s/^EGO_KD_PORT=.*/EGO_KD_PORT=7870/" /opt/ibm/spectrumcomputing/symphonyde/de72/conf/ego.conf
-			sed -i 's/$version = "3"/$version = "3" -o $version = "4"/' /opt/ibm/spectrumcomputing/symphonyde/de72/conf/profile.symclient
-			LOG "\tconfigured symphony de node ..."
-		else
-			echo nothing to do
 		fi
 	fi
 	if [ "${ROLE}" == "master" -o "${ROLE}" == "failover" -o "${ROLE}" == "compute" ]
