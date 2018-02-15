@@ -351,7 +351,7 @@ then
 	echo -e "\t...logon to soam client" >> ${LOG_FILE}
 	while [ 1 -lt 2 ]
 	do
-		if su - egoadmin -c "soamlogon -u Admin -x Admin" >/dev/null 2>&1
+		if su - $clusteradmin -c "soamlogon -u Admin -x Admin" >/dev/null 2>&1
 		then
 			break
 		else
@@ -362,10 +362,10 @@ then
 	echo -e "\t...logged on to soam client" >> ${LOG_FILE}
 	echo -e "\twait 2 minutes for the master to create consumer" >> ${LOG_FILE}
 	sleep 150
-	su - egoadmin -c "cd /opt/ibm/spectrumcomputing/symphonyde/de72/7.2/samples/CPP/SampleApp; make ; cd Output; gzip SampleServiceCPP; soamdeploy add SampleServiceCPP -p SampleServiceCPP.gz -c \"/SampleAppCPP\""
-	su - egoadmin -c "cd /opt/ibm/spectrumcomputing/symphonyde/de72/7.2/samples/CPP/SampleApp; sed -ibak 's/<SSM resReq/<SSM resourceGroupName=\"ManagementHosts\" resReq/' SampleApp.xml; sed -ibak 's/preStartApplication=/resourceGroupName=\"ComputeHosts\" preStartApplication=/' SampleApp.xml; soamreg SampleApp.xml" >> $LOG_FILE 2>&1
+	su - $clusteradmin -c "cd /opt/ibm/spectrumcomputing/symphonyde/de72/7.2/samples/CPP/SampleApp; make ; cd Output; gzip SampleServiceCPP; soamdeploy add SampleServiceCPP -p SampleServiceCPP.gz -c \"/SampleAppCPP\""
+	su - $clusteradmin -c "cd /opt/ibm/spectrumcomputing/symphonyde/de72/7.2/samples/CPP/SampleApp; sed -ibak 's/<SSM resReq/<SSM resourceGroupName=\"ManagementHosts\" resReq/' SampleApp.xml; sed -ibak 's/preStartApplication=/resourceGroupName=\"ComputeHosts\" preStartApplication=/' SampleApp.xml; soamreg SampleApp.xml" >> $LOG_FILE 2>&1
 	echo -e "\tSampleAppCPP registered..." >> ${LOG_FILE}
-	#su - egoadmin -c "cd /opt/ibm/spectrumcomputing/symphonyde/de72/7.2/samples/CPP/SampleApp/Output; ./SyncClient ; sleep 5; ./AsyncClient" >> $LOG_FILE 2>&1
+	#su - $clusteradmin -c "cd /opt/ibm/spectrumcomputing/symphonyde/de72/7.2/samples/CPP/SampleApp/Output; ./SyncClient ; sleep 5; ./AsyncClient" >> $LOG_FILE 2>&1
 
 elif [ "${ROLE}" == 'master' ]
 then
@@ -375,7 +375,7 @@ then
 		egosh user logon -u Admin -x Admin
 		while [ 1 -lt 2 ]
 		do
-			if su - egoadmin -c "egosh user logon -u Admin -x Admin" >/dev/null 2>&1
+			if su - $clusteradmin -c "egosh user logon -u Admin -x Admin" >/dev/null 2>&1
 			then
 				break
 			else
@@ -387,9 +387,9 @@ then
 		then
 			mc=`echo $MASTERHOST | sed -e 's/0$/1/'`
 			sleep 300
-			if su - egoadmin -c "egosh user logon -u Admin -x Admin" >/dev/null 2>&1
+			if su - $clusteradmin -c "egosh user logon -u Admin -x Admin" >/dev/null 2>&1
 			then
-				su - egoadmin -c "egosh ego restart -f"
+				su - $clusteradmin -c "egosh ego restart -f"
 			fi
 		fi
 	fi
@@ -429,7 +429,7 @@ function deploy_product() {
 			egosh user logon -u Admin -x Admin
 			LOG "\tlogged in ..."
 			LOG "create /SampleAppCPP consumer ..."
-			egosh consumer add "/SampleAppCPP" -a Admin -u Guest -e egoadmin -g "ManagementHosts,ComputeHosts" >> $LOG_FILE 2>&1
+			egosh consumer add "/SampleAppCPP" -a Admin -u Guest -e $clusteradmin -g "ManagementHosts,ComputeHosts" >> $LOG_FILE 2>&1
 			LOG "\tconsumer /SampleAppCPP created"
 			break
 		fi
