@@ -354,16 +354,9 @@ if [ "$PRODUCT" == "symphony" ]
 then
 	SOURCE_PROFILE=/opt/ibm/spectrumcomputing/profile.platform
 	deploy_product
-
-elif [ "$PRODUCT" == "cws" ]
+elif [ "$PRODUCT" == "cws" -o "$PRODUCT" == "lsf" ]
 then
-	echo installing spectrum computing CWS 
-	deploy_product
-
-# install LSF
-elif [ "$PRODUCT" == "lsf" ]
-then
-	echo installing spectrum computing LSF
+	echo installing spectrum computing $PRODUCT 
 	deploy_product
 else
 	echo "unsupported product $PRODUCT `date`" >> /root/application-failed

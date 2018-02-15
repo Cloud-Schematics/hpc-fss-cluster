@@ -383,6 +383,15 @@ then
 			fi
 		done
 		echo -e "\t...logged on to ego" >> ${LOG_FILE}
+		if [ -d /failover ]
+		then
+			mc=`echo $MASTERHOST | sed -e 's/0$/1/'`
+			sleep 300
+			if su - egoadmin -c "egosh user logon -u Admin -x Admin" >/dev/null 2>&1
+			then
+				su - egoadmin -c "egosh ego restart -f"
+			fi
+		fi
 	fi
 else
 	echo "nothing to do"
