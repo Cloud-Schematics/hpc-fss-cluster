@@ -111,7 +111,7 @@ To run this project locally:
 |fixed_config_preset|The bare metal hardware configuration.|S1270_32GB_2X960GBSSD_NORAID|
 |hourly_billing_compute|The billing type for the instance. When set to true, the computing instance is billed on hourly usage. Otherwise, the instance is billed on a monthly basis.|true|
 |hourly_billing_master|The billing type for the instance. When set to true, the master node is billed on hourly usage. Otherwise, the instance is billed on a monthly basis.|true|
-|master_failover|(advanced)Specifies whether or not HA is enabled for master nodes.|false|
+|failover_master|(advanced)Specifies whether or not HA is enabled for master nodes.|false|
 |master_use_bare_metal|(advanced)If set to `true`, bare metal masters are created. If set to `false`, VM masters are created.|false|
 |memory_in_mb_compute|The amount of memory (in Mb) to allocate to the compute server.|4096|
 |memory_in_mb_master|The amount of memory (in Mb) to allocate to the master server.|8192|
@@ -142,6 +142,13 @@ To run this project locally:
 |version|The version of the cluster product: `latest`, `7.2.0.0`, `2.2.0.0`, or `10.1`.|latest|
 
 ## Advanced Usage
+
+### cluster HA 
+
+To enable master failover, set `failover_master` to 1 or true
+
+Currently, the failover implements only when master is virtual, it brings up an virtual as nfs server
+- to ensure nfs server and masters are in the same VLAN, you might need to specify `private_vlan_id` when you have multiple vlans in a specific datacenter
 
 ### Bare metal support
 
