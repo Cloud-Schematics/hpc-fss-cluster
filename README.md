@@ -147,7 +147,7 @@ To run this project locally:
 
 To enable master failover, set `failover_master` to 1 or true
 
-Currently, the failover implements only when master is virtual, it brings up an virtual as nfs server
+Currently, the failover implements only when master is virtual, it brings up a virtual as nfs server
 - to ensure nfs server and masters are in the same VLAN, you might need to specify `private_vlan_id` when you have multiple vlans in a specific datacenter
 
 ### Bare metal support
