@@ -143,7 +143,7 @@ To run this project locally:
 
 ## Advanced Usage
 
-### cluster HA 
+### Cluster HA 
 
 To enable master failover, set `failover_master` to 1 or true
 
