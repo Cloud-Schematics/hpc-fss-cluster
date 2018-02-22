@@ -17,7 +17,7 @@ resource "ibm_compute_vm_instance" "nfsservers" {
   cores             = "1"
   memory            = "2048"
   count             = "${var.failover_master ? var.private_vlan_id > 0 ? 0 : 1 : 0}"
-  user_metadata = "#!/bin/bash\n\nrole=nfsserver\nproduct=${var.product}\n${file("scripts/ibm_spectrum_computing_deploy.sh")}"
+  user_metadata = "#!/bin/bash\n\nrole=nfsserver\nproduct=${var.product}\ndomain=${var.domain_name}\n${file("scripts/ibm_spectrum_computing_deploy.sh")}"
   private_network_only        = false
 }
 resource "ibm_compute_vm_instance" "nfsservers-vlan" {
@@ -31,7 +31,7 @@ resource "ibm_compute_vm_instance" "nfsservers-vlan" {
   cores             = "1"
   memory            = "2048"
   count             = "${var.failover_master ? var.private_vlan_id > 0 ? 1 : 0 : 0}"
-  user_metadata = "#!/bin/bash\n\nrole=nfsserver\nproduct=${var.product}\n${file("scripts/ibm_spectrum_computing_deploy.sh")}"
+  user_metadata = "#!/bin/bash\n\nrole=nfsserver\nproduct=${var.product}\ndomain=${var.domain_name}\n${file("scripts/ibm_spectrum_computing_deploy.sh")}"
   private_vlan_id = "${var.private_vlan_id}"
   private_network_only        = false
 }
