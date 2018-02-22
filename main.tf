@@ -399,7 +399,7 @@ variable hourly_billing_compute {
   description = "When set to true, the computing instance is billed on hourly usage. Otherwise, the instance is billed on a monthly basis."
 }
 variable post_install_script_uri {
-  default = "https://raw.githubusercontent.com/IBMSpectrumComputing/spectrum-schematics-cluster/master/scripts/ibm_spectrum_computing_deploy.sh"
+  default = "https://raw.githubusercontent.com/Cloud-Schematics/hpc-fss-cluster/master/scripts/ibm_spectrum_computing_deploy.sh"
   description = "The URL for the deployment script."
 }
 variable use_intranet {
