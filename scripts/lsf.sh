@@ -184,7 +184,7 @@ function download_packages()
 							LOG "\twget -nH -c --no-check-certificate -o /dev/null -O lsf${ver_in_pkg}_lnx310-lib217-x86_64.tar.Z ${uri_package_additional2}"
 							cd /export/lsf/${VERSION} && wget -nH -c --no-check-certificate -o /dev/null -O lsf${ver_in_pkg}_lnx310-lib217-x86_64.tar.Z ${uri_package_additional2}
 						fi
-						LOG "\twget -nH -c --no-check-certificate -o /dev/null -O ${LSF_INSTALL_PACKAGE} ${uri_package_installer}
+						LOG "\twget -nH -c --no-check-certificate -o /dev/null -O ${LSF_INSTALL_PACKAGE} ${uri_package_installer}"
 						cd /export/lsf/${VERSION} && wget -nH -c --no-check-certificate -o /dev/null -O ${LSF_INSTALL_PACKAGE} ${uri_package_installer}
 						touch /export/download_finished
 					else
