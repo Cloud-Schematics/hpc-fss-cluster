@@ -275,9 +275,11 @@ function start_product()
 		if [ -f /etc/redhat-release ]
 		then
 			service lsf start
+			service lsfd start
 		elif [ -f /etc/lsb-release ]
 		then
 			/etc/rc3.d/S95lsf start
+			/etc/rc3.d/S95lsfd start
 		else
 			echo "no start"
 		fi
